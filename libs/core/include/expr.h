@@ -49,6 +49,12 @@ public:
       : expression(std::move(expression)) {}
 };
 
+class VariableExpr {
+public:
+  token::Token name;
+  VariableExpr(token::Token name) : name(name) {}
+};
+
 // 把 GroupingExpr 加入 variant
 using ExprBase = std::variant<BinaryExpr, UnaryExpr, LiteralExpr, GroupingExpr>;
 
