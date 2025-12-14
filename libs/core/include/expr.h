@@ -28,6 +28,15 @@ public:
       : left(std::move(left)), op(op), right(std::move(right)) {}
 };
 
+class AssignExpr {
+public:
+  token::Token name;
+  std::unique_ptr<Expr> value;
+  AssignExpr(token::Token name, std::unique_ptr<Expr> value)
+      : name(name), value(std::move(value)) {}
+};
+
+
 class UnaryExpr {
 public:
   token::Token op;
@@ -56,7 +65,7 @@ public:
 };
 
 // 把 GroupingExpr 加入 variant
-using ExprBase = std::variant<BinaryExpr, UnaryExpr, LiteralExpr, GroupingExpr>;
+using ExprBase = std::variant<BinaryExpr, UnaryExpr, LiteralExpr, GroupingExpr,VariableExpr,AssignExpr>;
 
 class Expr : public ExprBase {
 public:
@@ -90,6 +99,9 @@ struct ExprPrinter {
     std::cout << ")";
   }
 
+  void operator() (const VariableExpr &expr) const {
+    std::cout << "(var " << expr.name.lexeme() << ")";
+  }
   // 处理 LiteralExpr
   void operator()(const LiteralExpr &expr) const {
     if (std::holds_alternative<int>(expr.value)) {
@@ -104,52 +116,13 @@ struct ExprPrinter {
       std::cout << " nil";
     }
   }
+
+  void operator()(const AssignExpr &expr) const {
+    std::cout << "(= " << expr.name.lexeme() << " ";
+    std::visit(*this, *expr.value);
+    std::cout << ")";
+  }
 };
-
-// using ExprBase = std::variant<BinaryExpr, UnaryExpr, LiteralExpr,>;
-
-// class Expr : public ExprBase {
-// public:
-//   using ExprBase::ExprBase;
-//   using ExprBase::operator=;
-// };
-
-// // the struct should show the expression in a readable format json and use
-// // variant visitor pattern
-// struct ExprPrinter {
-//   void print(const Expr &expr) const { std::visit(*this, expr); }
-
-//   // 处理 BinaryExpr
-//   void operator()(const BinaryExpr &expr) const {
-//     std::cout << "(" << expr.op.lexeme();
-//     std::visit(*this, *expr.left);
-//     std::visit(*this, *expr.right);
-//     std::cout << ")";
-//   }
-
-//   // 处理 UnaryExpr
-//   void operator()(const UnaryExpr &expr) const {
-//     std::cout << "(" << expr.op.lexeme();
-//     std::visit(*this, *expr.right);
-//     std::cout << ")";
-//   }
-
-//   // 处理 LiteralExpr
-//   void operator()(const LiteralExpr &expr) const {
-//     if (std::holds_alternative<int>(expr.value)) {
-//       std::cout << " " << std::get<int>(expr.value);
-//     } else if (std::holds_alternative<double>(expr.value)) {
-//       std::cout << " " << std::get<double>(expr.value);
-//     } else if (std::holds_alternative<std::string>(expr.value)) {
-//       std::cout << " \"" << std::get<std::string>(expr.value) << "\"";
-//     } else if (std::holds_alternative<bool>(expr.value)) {
-//       std::cout << " " << (std::get<bool>(expr.value) ? "true" : "false");
-//     } else {
-//       std::cout << " nil";
-//     }
-//   }
-// };
-
 
 
 } // namespace expr

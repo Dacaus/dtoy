@@ -16,7 +16,8 @@ public:
   std::vector<std::unique_ptr<Stmt>> parse() {
     std::vector<std::unique_ptr<Stmt>> statements;
     while (!isAtEnd()) {
-      statements.push_back(statement());
+      // statements.push_back(statement());
+      statements.push_back(declaration());
     }
     return statements;
   };
@@ -27,6 +28,7 @@ public:
   std::unique_ptr<Stmt> statement();
 
 private:
+  std::unique_ptr<Expr> assignment();
   std::unique_ptr<Expr> equality();
   std::unique_ptr<Expr> comparison();
   std::unique_ptr<Expr> term();
@@ -36,6 +38,7 @@ private:
   std::unique_ptr<Stmt> printStatement();
   std::unique_ptr<Stmt> exprStatement();
   std::unique_ptr<Stmt> declaration();
+  std::unique_ptr<Stmt> varDeclaration();
 private:
   bool match(std::initializer_list<token::TokenType> types);
   bool check(token::TokenType type);
